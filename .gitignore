@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# CPR dataset
+data/
+videos/
+flow_pose_subset/
+*.mp4
+*.zip
+
+# Model weights and outputs
+checkpoints/
+*.pth
+*.pt
+*.ckpt
+
+# Local experiment artifacts
+outputs/
+runs/
+wandb/
+
+# Generated Kaggle submissions
+submission*.csv
+
+# Editor and system files
+.vscode/
+.DS_Store
+Thumbs.db
