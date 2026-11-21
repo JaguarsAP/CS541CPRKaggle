@@ -5,19 +5,25 @@ from torchvision.models import resnet18, ResNet18_Weights
 
 
 class CPRResNet18(nn.Module):
-    def __init__(self, num_classes=13, pretrained=True):
+
+    def __init__(
+        self,
+        num_classes=13,
+        pretrained=True,
+        freeze_backbone=True
+    ):
         super().__init__()
 
-        # Load a ResNet-18 pretrained on ImageNet.
         weights = ResNet18_Weights.DEFAULT if pretrained else None
         self.backbone = resnet18(weights=weights)
-
-        # Replace the original ImageNet classifier.
-        # ResNet-18 normally outputs 1000 ImageNet classes.
         self.backbone.fc = nn.Identity()
 
-        # ResNet-18 produces 512 features per frame.
+        if freeze_backbone:
+            for param in self.backbone.parameters():
+                param.requires_grad = False
+
         self.classifier = nn.Linear(512, num_classes)
+
 
     def forward(self, x):
         """

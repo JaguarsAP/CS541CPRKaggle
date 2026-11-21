@@ -15,6 +15,18 @@ def main():
     model = CPRResNet18(pretrained=False)
     model.eval()
 
+
+
+    total_params = sum(p.numel() for p in model.parameters())
+    trainable_params = sum(
+        p.numel() for p in model.parameters()
+        if p.requires_grad
+    )
+
+    print("Total parameters:", total_params)
+    print("Trainable parameters:", trainable_params)
+
+    
     # Use 2 frames and 64x64 images for a quick CPU test.
     # The model supports our full 32-frame, 224x224 inputs too.
     dummy_video = torch.randn(1, 2, 3, 64, 64)
@@ -33,3 +45,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
