@@ -1,14 +1,32 @@
 
 from pathlib import Path
+import sys
 
 import pandas as pd
 from sklearn.model_selection import StratifiedGroupKFold
 
+# Project directories
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = PROJECT_ROOT / "data"
+STARTER_DIR = PROJECT_ROOT / "starter"
 
-def create_split():
-    train = pd.read_csv(DATA_DIR / "train.csv")
+sys.path.insert(0, str(STARTER_DIR))
+from cpr_data import data_file
+
+
+def main():
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+    # Prefer the local CSV, otherwise use the shared SCC dataset.
+    local_csv = DATA_DIR / "train.csv"
+
+    if local_csv.exists():
+        csv_path = local_csv
+    else:
+        csv_path = data_file("train.csv")
+
+    print(f"Reading training data from: {csv_path}")
+    train = pd.read_csv(csv_path)
 
     splitter = StratifiedGroupKFold(
         n_splits=5,
@@ -18,34 +36,28 @@ def create_split():
 
     train_idx, val_idx = next(
         splitter.split(
-            X=train,
+            train,
             y=train["class_id"],
             groups=train["take"]
         )
     )
 
-    train_df = train.iloc[train_idx].copy()
-    val_df = train.iloc[val_idx].copy()
+    train_split = train.iloc[train_idx].reset_index(drop=True)
+    val_split = train.iloc[val_idx].reset_index(drop=True)
 
-    # Ensure no performance appears in both sets
-    assert set(train_df["take"]).isdisjoint(
-        set(val_df["take"])
-    )
+    assert set(train_split["take"]).isdisjoint(
+        set(val_split["take"])
+    ), "Data leakage: overlapping takes!"
 
-    print("Training videos:", len(train_df))
-    print("Validation videos:", len(val_df))
+    train_split.to_csv(DATA_DIR / "train_split.csv", index=False)
+    val_split.to_csv(DATA_DIR / "val_split.csv", index=False)
 
-    print("\nTraining class distribution:")
-    print(train_df["class_name"].value_counts())
+    print(f"Training videos: {len(train_split)}")
+    print(f"Validation videos: {len(val_split)}")
+    print(f"Training takes: {train_split['take'].nunique()}")
+    print(f"Validation takes: {val_split['take'].nunique()}")
+    print("No take overlap detected.")
 
-    print("\nValidation class distribution:")
-    print(val_df["class_name"].value_counts())
-
-    # Save splits for reproducibility
-    train_df.to_csv(DATA_DIR / "train_split.csv", index=False)
-    val_df.to_csv(DATA_DIR / "val_split.csv", index=False)
-
-    print("\nSplits saved successfully!")
 
 if __name__ == "__main__":
-    create_split()
+    main()
