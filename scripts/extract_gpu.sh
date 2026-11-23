@@ -1,5 +1,6 @@
 
-#!/bin/bash -l
+#!/bin/bash
+#$ -S /bin/bash
 #$ -P cs541
 #$ -l gpus=1
 #$ -l h_rt=04:00:00
@@ -9,6 +10,9 @@
 #$ -cwd
 
 set -e
+
+# Initialize the environment modules system.
+source /etc/profile.d/modules.sh
 
 module load miniconda academic-ml/fall-2026
 conda activate fall-2026-pyt
