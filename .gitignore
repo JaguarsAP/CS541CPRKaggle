@@ -30,3 +30,8 @@ submission*.csv
 .vscode/
 .DS_Store
 Thumbs.db
+
+# Features and Checks
+features/
+checkpoints/
+logs/
