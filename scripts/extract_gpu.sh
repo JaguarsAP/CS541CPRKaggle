@@ -1,5 +1,5 @@
 
-#!/bin/bash
+#!/bin/bash -l
 #$ -P cs541
 #$ -l gpus=1
 #$ -l h_rt=04:00:00
