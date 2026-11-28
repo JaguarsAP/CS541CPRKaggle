@@ -1,37 +1,53 @@
-
-#!/bin/bash
-#$ -S /bin/bash
+#!/bin/bash -l
 #$ -P cs541
-#$ -l gpus=1
-#$ -l h_rt=04:00:00
-#$ -pe omp 4
 #$ -N cpr_features
-#$ -j y
+#$ -l gpus=1
+#$ -l gpu_c=7.5
+#$ -pe omp 4
+#$ -l h_rt=08:00:00
 #$ -cwd
+#$ -j y
 
 set -e
 
-# Initialize SCC's Lmod environment.
-source /usr/local/lmod/8.7.12/init/bash
+echo "========================================"
+echo "CPR RGB Feature Extraction"
+echo "Start date: $(date)"
+echo "Job ID: $JOB_ID"
+echo "Node: $(hostname)"
+echo "========================================"
 
 module load miniconda academic-ml/fall-2026
 conda activate fall-2026-pyt
 
-cd /projectnb/cs541/students/alexpfau/CS541CPRKaggle
+export HF_HOME=/projectnb/cs541/students/$USER/.cache/huggingface
+export TORCH_HOME=/projectnb/cs541/students/$USER/.cache/torch
 
-echo "Starting feature extraction"
+mkdir -p "$HF_HOME" "$TORCH_HOME"
+
+cd /projectnb/cs541/students/$USER/CS541CPRKaggle
+
+python -c "import torch; assert torch.cuda.is_available(); print('GPU:', torch.cuda.get_device_name(0))"
+
+echo "Starting training feature extraction"
 date
-nvidia-smi
 
 python -u scripts/extract_features.py \
     --split train \
     --batch-size 2 \
     --num-workers 2
 
+echo "Training feature extraction complete"
+date
+
+echo "Starting validation feature extraction"
+
 python -u scripts/extract_features.py \
     --split val \
     --batch-size 2 \
     --num-workers 2
 
-echo "Feature extraction complete"
-date
+echo "========================================"
+echo "ALL FEATURE EXTRACTION COMPLETE"
+echo "End date: $(date)"
+echo "========================================"

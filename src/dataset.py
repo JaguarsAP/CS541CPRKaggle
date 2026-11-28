@@ -33,7 +33,7 @@ class CPRVideoDataset(Dataset):
         image_size=224,
         stride=4
     ):
-        self.df = pd.read_csv(csv_path)
+        self.df = pd.read_csv(csv_path, dtype={"video_id": str})
         self.split = split
         self.num_frames = num_frames
         self.image_size = image_size
@@ -94,6 +94,10 @@ class CPRVideoDataset(Dataset):
 
         # Normalize for pretrained ImageNet models
         frames = (frames - self.mean) / self.std
+
+        # Test videos have no ground-truth labels.
+        if self.split == "test":
+            return frames, str(video_id)
 
         # Get the 13 binary labels
         labels = torch.tensor(

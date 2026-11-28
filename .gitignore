@@ -35,3 +35,13 @@ Thumbs.db
 features/
 checkpoints/
 logs/
+# SCC job logs and generated artifacts
+*.o[0-9]*
+*.e[0-9]*
+features/
+checkpoints/
+results/
+submissions/
+submission_*.csv
+__pycache__/
+*.pyc

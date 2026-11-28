@@ -71,10 +71,10 @@ def extract_features(split, batch_size, num_workers):
 
             frame_features = torch.cat(frame_features, dim=0)
 
-            # Average the features across video frames.
+            # Preserve temporal features for each video.
             video_features = frame_features.reshape(
                 b, t, 512
-            ).mean(dim=1)
+            )
 
             features.append(video_features.cpu())
             labels.append(targets.cpu())
